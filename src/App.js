@@ -1,3 +1,6 @@
+// To run backend: node server.js
+// To start React frontend: npm start (from the playlist-manager dir)
+
 import logo from './logo.svg';
 import './App.css';
 
