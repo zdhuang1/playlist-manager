@@ -17,53 +17,19 @@
  *    npm install
  */
 
-import logo from './logo.svg';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Callback from './pages/Callback';
 import './App.css';
 
-import React, { useEffect } from 'react';
-import { getTopTracks } from './spotifyApi';
-
-const topTracks = await getTopTracks();
-console.log(
-  topTracks?.map(
-    ({name, artists}) =>
-      `${name} by ${artists.map(artist => artist.name).join(', ')}`
-  )
-);
-
-
 function App() {
-  useEffect(() => {
-    async function fetchTracks() {
-      const topTracks = await getTopTracks();
-      console.log(
-        topTracks?.map(
-          ({ name, artists }) =>
-            `${name} by ${artists.map(artist => artist.name).join(', ')}`
-        )
-      );
-    }
-    fetchTracks();
-  }, []);
-  
   return (
-      <div className="App">
-      <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-          Pick a song
-          </p>
-
-          <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          >
-          Learn React
-          </a>
-      </header>
-      </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/callback" element={<Callback />} />
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
