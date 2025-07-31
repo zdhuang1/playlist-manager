@@ -1,7 +1,4 @@
-// Authorization token that must have been created previously. See : https://developer.spotify.com/documentation/web-api/concepts/authorization
-const token = '1POdFZRZbvb...qqillRxMr2z';
-
-export async function fetchWebApi(endpoint, method, body) {
+export async function fetchWebApi(endpoint, method, token, body) {
   const options = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -18,10 +15,11 @@ export async function fetchWebApi(endpoint, method, body) {
   return await res.json();
 }
 
-export async function getTopTracks() {
+
+export async function getTopTracks(token) {
   return (await fetchWebApi(
-    'v1/me/top/tracks?time_range=long_term&limit=5', 'GET'
+    'v1/me/top/tracks?time_range=long_term&limit=5', 'GET', token
   )).items;
 }
 
-export const getMe = (token) => fetchWebApi('me', token);
+export const getMe = (token) => fetchWebApi('me', 'GET', token);
