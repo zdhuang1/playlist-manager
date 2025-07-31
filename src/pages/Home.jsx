@@ -3,6 +3,8 @@ import { useAuth } from '../auth/useAuth';
 import { getMe, getTopTracks } from '../api/spotifyClient';
 import logo from '../logo.svg';
 
+import styles from './Home.module.css';
+
 export default function Home() {
   const { token, startLogin } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -26,7 +28,8 @@ export default function Home() {
   if (!profile) return <div>Loading profile...</div>;
 
   return (
-    <div className="App">
+    <div className={styles.App}>
+        
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Hello, {profile.display_name}</h1>
