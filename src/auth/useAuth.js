@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { generateRandomString, createCodeChallenge } from './pkce';
 import { buildAuthorizeUrl } from './spotify';
-//import { API_BASE_URL } from '../config'; --> not sure what this does
+import { REDIRECT_URI, SPOTIFY_CLIENT_ID } from '../config';
 import { memory, storage } from '../utils/storage';
 
 const TOKEN_KEY = 'spotify_access_token';
@@ -33,27 +33,35 @@ export function useAuth() {
     if (!code || stateReturned !== expectedState) throw new Error('Invalid state or code');
 
     const codeVerifier = storage.get(VERIFIER_KEY);
-    // Browser->Spotify (no backend)
-    const body = new URLSearchParams({
-      client_id: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: process.env.REACT_APP_SPOTIFY_REDIRECT_URI,
-      code_verifier: codeVerifier
-    });
 
-    const r = await fetch('https://accounts.spotify.com/api/token', {
+    const url = "https://accounts.spotify.com/api/token";
+    const payload = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body
-    });
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: REDIRECT_URI,
+        client_id: SPOTIFY_CLIENT_ID,
+        code_verifier: codeVerifier
+      }),
+    }
+    
+    const body = await fetch(url, payload);
 
-    if (!r.ok) {
+    if (body.ok) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      url.searchParams.delete('state');
+      window.history.replaceState({}, document.title, url.pathname + url.search);
+    } else {
       // Optional: try backend instead if CORS fails (API_BASE_URL + '/spotify-token')
       throw new Error('Token exchange failed');
     }
 
-    const data = await r.json();
+    const data = await body.json();
     const expiresAt = Date.now() + data.expires_in * 1000;
 
     memory.accessToken = data.access_token;
