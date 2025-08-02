@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../config"
+
 export async function fetchWebApi(endpoint, method, token, body) {
   const options = {
     headers: {
@@ -8,7 +10,7 @@ export async function fetchWebApi(endpoint, method, token, body) {
   if (body && method !== 'GET') {
     options.body = JSON.stringify(body);
   }
-  const res = await fetch(`https://api.spotify.com/${endpoint}`, options);
+  const res = await fetch(`${API_BASE_URL}/${endpoint}`, options);
   if (!res.ok) {
     throw new Error(`Spotify API error: ${res.status}`);
   }
@@ -22,4 +24,5 @@ export async function getTopTracks(token) {
   )).items;
 }
 
-export const getMe = (token) => fetchWebApi('me', 'GET', token);
+
+export const getMe = (token) => fetchWebApi('v1/me', 'GET', token);
