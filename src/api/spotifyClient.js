@@ -17,12 +17,8 @@ export async function fetchWebApi(endpoint, method, token, body) {
   return await res.json();
 }
 
+export const getProfile = (token) => fetchWebApi('v1/me', 'GET', token);
 
-export async function getTopTracks(token) {
-  return (await fetchWebApi(
-    'v1/me/top/tracks?', 'GET', token
-  )).items;
-}
-
-
-export const getMe = (token) => fetchWebApi('v1/me', 'GET', token);
+export const getUserPlaylists = (token, userId) => {
+  fetchWebApi(`v1/users/${userId}/playlists`, 'GET', token)
+};

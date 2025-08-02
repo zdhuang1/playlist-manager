@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/useAuth';
-import { getMe, getTopTracks } from '../api/spotifyClient';
+import { getUserPlaylists, getProfile } from '../api/spotifyClient';
 import logo from '../logo.svg';
 
 import styles from './Home.module.css';
@@ -8,13 +8,21 @@ import styles from './Home.module.css';
 export default function Home() {
   const { token, startLogin } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [topTracks, setTopTracks] = useState([]);
+  const [userPlaylists, setUserPlaylists] = useState(null);
 
   useEffect(() => {
     if (!token) return;
-    getMe(token).then(setProfile).catch(console.error);
+    getProfile(token).then(setProfile).catch(console.error);
   }, [token]);
 
+  useEffect(() => {
+    if (!token || !profile) return;
+    getUserPlaylists(token, profile.id)
+      .then((data) => setUserPlaylists(data || {items: []}))
+      .catch(console.error);
+  }, [token, profile]);
+
+/*
   useEffect(() => {
     if (!token) return;
     async function fetchTracks() {
@@ -24,16 +32,8 @@ export default function Home() {
     fetchTracks();
   }, [token]);
 
-  if (!token) return <button onClick={startLogin}>Log in With Spotify</button>;
-  if (!profile) return <div>Loading profile...</div>;
-
-  return (
-    <div className={styles.App}>
-        
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <h1>Hello, {profile.display_name}</h1>
-        <pre>{JSON.stringify(profile, null, 2)}</pre>
+          <pre>{JSON.stringify(profile, null, 2)}</pre>
         <p>Here are your top tracks:</p>
         <ul>
           {topTracks.map(track => (
@@ -42,7 +42,28 @@ export default function Home() {
             </li>
           ))}
         </ul>
+*/
+
+  if (!token) return <button onClick={startLogin}>Log in With Spotify</button>;
+  if (!profile) return <div>Loading profile...</div>;
+
+  return (
+    <div className={styles.App}>
+      <header className={styles.App_header}>
+        <img src={logo} className={styles.App_logo} alt="logo" />
+        <h1>Hello, {profile.display_name}</h1>
+        <p>Welcome to my playlist manager!</p>
+        <h2>Your playlists:</h2>
+        {userPlaylists && userPlaylists.items ? (
+          userPlaylists.items.map((playlist) => (
+            <p key={playlist.name}>{playlist.name}</p>
+          ))
+        ) : (
+          <div>Loading playlists...</div>
+        )}
       </header>
     </div>
+
+
   );
 }
