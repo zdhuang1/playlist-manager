@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/useAuth';
-import { getUserPlaylists, getProfile } from '../api/spotifyClient';
+import { getUserPlaylists, getUserData } from '../api/spotifyClient';
 import logo from '../logo.svg';
 
 import styles from './Home.module.css';
@@ -10,9 +10,10 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [userPlaylists, setUserPlaylists] = useState(null);
 
+
   useEffect(() => {
     if (!token) return;
-    getProfile(token).then(setProfile).catch(console.error);
+    getUserData(token).then(setProfile).catch(console.error);
   }, [token]);
 
   useEffect(() => {

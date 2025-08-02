@@ -10,15 +10,18 @@ export async function fetchWebApi(endpoint, method, token, body) {
   if (body && method !== 'GET') {
     options.body = JSON.stringify(body);
   }
-  const res = await fetch(`${API_BASE_URL}/${endpoint}`, options);
+  const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
   if (!res.ok) {
     throw new Error(`Spotify API error: ${res.status}`);
   }
   return await res.json();
 }
 
-export const getProfile = (token) => fetchWebApi('v1/me', 'GET', token);
+export async function getUserData(token) {
+  return fetchWebApi('/me', 'GET', token)
+}
 
-export const getUserPlaylists = (token, userId) => {
-  fetchWebApi(`v1/users/${userId}/playlists`, 'GET', token)
-};
+export async function getUserPlaylists(token) {
+  return fetchWebApi('/me/playlists', 'GET', token);
+}
+
