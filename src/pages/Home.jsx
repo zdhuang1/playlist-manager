@@ -8,45 +8,30 @@ import styles from './Home.module.css';
 export default function Home() {
   const { token, startLogin } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [userPlaylists, setUserPlaylists] = useState(null);
-
-
+  const [playlists, setPlaylists] = useState(null);
+  const [error, setError] = useState(null);
+  
   useEffect(() => {
     if (!token) return;
-    getUserData(token).then(setProfile).catch(console.error);
-  }, [token]);
-
-  useEffect(() => {
-    if (!token || !profile) return;
-    getUserPlaylists(token, profile.id)
-      .then((data) => setUserPlaylists(data || {items: []}))
-      .catch(console.error);
-  }, [token, profile]);
-
-/*
-  useEffect(() => {
-    if (!token) return;
-    async function fetchTracks() {
-      const tracks = await getTopTracks(token);
-      setTopTracks(tracks || []);
+    async function fetchData() {
+      try {
+        const userData = await getUserData(token);
+        const playlists = await getUserPlaylists(token);
+        setProfile(userData);
+        setPlaylists(playlists.items);
+      } catch (err) {
+        setError(err.message);
+      }
     }
-    fetchTracks();
+
+    if (token) {
+      fetchData();
+    }
   }, [token]);
 
-        <h1>Hello, {profile.display_name}</h1>
-          <pre>{JSON.stringify(profile, null, 2)}</pre>
-        <p>Here are your top tracks:</p>
-        <ul>
-          {topTracks.map(track => (
-            <li key={track.id}>
-              {track.name} by {track.artists.map(artist => artist.name).join(', ')}
-            </li>
-          ))}
-        </ul>
-*/
-
+  if (error) return <div>Error: {error}</div>
   if (!token) return <button onClick={startLogin}>Log in With Spotify</button>;
-  if (!profile) return <div>Loading profile...</div>;
+  if (!profile || playlists.length === 0) return <div>Loading...</div>;
 
   return (
     <div className={styles.App}>
@@ -55,9 +40,9 @@ export default function Home() {
         <h1>Hello, {profile.display_name}</h1>
         <p>Welcome to my playlist manager!</p>
         <h2>Your playlists:</h2>
-        {userPlaylists && userPlaylists.items ? (
-          userPlaylists.items.map((playlist) => (
-            <p key={playlist.name}>{playlist.name}</p>
+        {playlists ? (
+          playlists.map((playlist) => (
+            <li key={playlist.id}>{playlist.name}</li>
           ))
         ) : (
           <div>Loading playlists...</div>
